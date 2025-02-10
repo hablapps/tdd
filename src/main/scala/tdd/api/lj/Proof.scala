@@ -43,12 +43,12 @@ object Proof:
             
     extension [F: Form: Show](form: F)
         
-        def derivation: Option[Proof[F]] = 
+        def proof: Option[Proof[F]] = 
             val ss: SearchSpace[F] = Mu.unfold(SearchSpace.coalg)(api.Sequent.proof(form))
             findDerivationWithID(ss)
             
     extension [F: Form: Show, T: Term.Aux[F]](form: F)
         
-        def proof: Option[T] = 
-            val derivation: Option[Proof[F]] = form.derivation
+        def program: Option[T] = 
+            val derivation: Option[Proof[F]] = form.proof
             derivation.flatMap(Mu.fold(CalculusF.alg))

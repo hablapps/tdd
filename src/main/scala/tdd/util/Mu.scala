@@ -28,3 +28,8 @@ object Mu:
         def show(t: Mu[F]): String =
             fold(toTree)(t).show
 
+    def traverseF[F[_]: Traverse, G[_]: Monad, H[_]](nat: F ~> Compose[G, H])(ss: Mu[F]): G[Mu[H]] = 
+        val a: F[Mu[F]] = ss.out()
+        val b: G[F[Mu[H]]] = a.traverse(traverseF(nat))
+        val c: G[H[Mu[H]]] = b.flatMap(nat.apply)
+        c.map(h => Mu(() => h))

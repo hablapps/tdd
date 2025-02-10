@@ -14,7 +14,7 @@ import tdd.util.given
 class BeProvenBy[F: Form: Show, T: Term.Aux[F]: Equality: Show](term: T) extends Matcher[F]:
 
     def apply(formula: F) =
-        val result: Option[T] = lj.Proof.proof[F, T](formula)
+        val result: Option[T] = lj.Proof.program[F, T](formula)
         MatchResult(
             result.map(_ === term).getOrElse(false),
             s"Expected term ${term.show}, but " +
