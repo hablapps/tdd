@@ -14,12 +14,10 @@ object Proof:
 
     def findDerivationRec[F: Form](find: Mu[SearchSpace.SearchF[F]] => Option[Proof[F]])(
             ss: Mu[SearchSpace.SearchF[F]]): Option[Proof[F]] = 
-        ss.out()
-            .iterator
-            .map(_.traverse(find))
-            .collect:
-                case Some(f) => Mu(() => f)
-            .nextOption
+        LazyList.from(ss.out())
+            .mapFilter(_.traverse(find))
+            .map(Mu.in)
+            .headOption
 
     // Plain DFS, not safe with infinite search spaces
     def findDerivation[F: Form](ss: Mu[SearchSpace.SearchF[F]]): Option[Proof[F]] = 

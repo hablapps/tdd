@@ -8,6 +8,8 @@ case class Mu[F[_]](out: () => F[Mu[F]])
 
 object Mu:
 
+    def in[F[_]](f: => F[Mu[F]]): Mu[F] = Mu(() => f)
+
     def fold[F[_]: Functor, A](alg: Algebra[F, A]): Mu[F] => A = 
         case Mu(f) => alg(f().map(fold(alg)))
 
