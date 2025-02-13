@@ -18,7 +18,8 @@ class ExamplesConjunction[F: Form: Show, T: Term.Aux[F]: Equality: Show] extends
             ("A".atom and "B".atom implies ("B".atom and "A".atom)) should BeProvenBy(
                 (0, "A".atom and "B".atom).lam(
                     0.`var`._2 `and` 0.`var`._1
-                )
+                ),
+                through = lj.Proof.DepthFirst
             )
             
         it("A & B -> A"): 
@@ -26,5 +27,6 @@ class ExamplesConjunction[F: Form: Show, T: Term.Aux[F]: Equality: Show] extends
             (("A".atom and "B".atom) implies "A".atom) should BeProvenBy(
                 (0, "A".atom and "B".atom).lam(
                     0.`var`._1
-                )
+                ),
+                through = lj.Proof.DepthFirst
             )
