@@ -14,7 +14,7 @@ import tdd.util.given
 class Fail[F: Form: Show, T: Term.Aux[F]: Equality: Show] extends Matcher[F]:
 
     def apply(formula: F) =
-        val result: Option[T] = lj.Proof.program[F, T](formula)
+        val result: Option[T] = lj.Proof.program[F, T](formula)()
         MatchResult(
             !result.isDefined,
             s"Expected no proof, but found term ${result.fold("should not happen")(_.show)}",

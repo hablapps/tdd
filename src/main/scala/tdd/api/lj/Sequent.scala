@@ -53,11 +53,11 @@ object Sequent:
         Sequent.IsAxiom.unapply(gs).toList ++ 
         Sequent.IsLeftFalse.unapply(gs).toList ++ 
         Sequent.IsRightImpl.unapply(gs).toList ++ 
-        Sequent.IsLeftImpl.unapply(gs).toList.map(_.toList).flatten ++
-        Sequent.IsLeftAnd.unapply(gs).toList.map(_.toList).flatten ++
+        Sequent.IsLeftImpl.unapply(gs).toList.flatMap(_.toList) ++
+        Sequent.IsLeftAnd.unapply(gs).toList.flatMap(_.toList) ++
         Sequent.IsRightAnd.unapply(gs).toList ++
-        Sequent.IsLeftOr.unapply(gs).toList.map(_.toList).flatten ++
-        Sequent.IsRightOr.unapply(gs).toList.map(_.toList).flatten
+        Sequent.IsLeftOr.unapply(gs).toList.flatMap(_.toList) ++
+        Sequent.IsRightOr.unapply(gs).toList.flatMap(_.toList)
 
     object IsAxiom: 
         def unapply[F: Form](seq: api.Sequent[F]): Option[AxiomSeq[F]] = 

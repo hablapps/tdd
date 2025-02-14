@@ -12,11 +12,13 @@ import lj.Proof.SearchStrategy
 import tdd.api.{Form, Term}
 import tdd.util.given
 
-class BeProvenBy[F: Form: Show, T: Term.Aux[F]: Equality: Show](term: T, 
-        through: SearchStrategy = lj.Proof.IterativeDeepening) extends Matcher[F]:
+class BeProvenBy[F: Form: Show, T: Term.Aux[F]: Equality: Show](
+    term: T, 
+    through: SearchStrategy = lj.Proof.IterativeDeepening) 
+extends Matcher[F]:
 
     def apply(formula: F) =
-        val result: Option[T] = lj.Proof.programThrough[F, T](formula)(through)
+        val result: Option[T] = lj.Proof.program[F, T](formula)(through)
         MatchResult(
             result.map(_ === term).getOrElse(false),
             s"Expected term ${term.show}, but " +

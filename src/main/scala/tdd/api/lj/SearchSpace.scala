@@ -8,19 +8,18 @@ import cats.free.*
 import cats.syntax.all.*
 import tdd.util.*
 
-type SearchSpace[F] = Mu[[t] =>> List[CalculusF[F, t]]]
+type SearchSpace[F] = Mu[[t] =>> LazyList[CalculusF[F, t]]]
 
 object SearchSpace: 
 
-    type SearchF[F] = [t] =>> List[CalculusF[F, t]]
+    type SearchF[F] = [t] =>> LazyList[CalculusF[F, t]]
 
     given [F: Form]: Functor[SearchF[F]] = 
-        Functor[List].compose(using Functor[[t] =>> CalculusF[F, t]])
+        Functor[LazyList].compose(using Functor[[t] =>> CalculusF[F, t]])
 
-    def coalg[F: Form]: Coalgebra[api.Sequent[F], SearchF[F]] = 
-        Sequent.fromSequent(_)
-            .map(CalculusF.coalg)
-            .map(_.map(Sequent.toSequent))
+    def coalg[F: Form]: Coalgebra[api.Sequent[F], SearchF[F]] = seq => 
+        LazyList.from(Sequent.fromSequent(seq))
+            .map(CalculusF.coalg andThen (_.map(Sequent.toSequent)))
 
     def alg[F: Form, T: Term.Aux[F]]: Algebra[SearchF[F], List[T]] = 
         _.toList.map(

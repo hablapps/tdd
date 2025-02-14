@@ -20,7 +20,7 @@ def derivationImpl[A: Type](using Q: Quotes): Expr[A] =
     val tpeA: TypeRepr = TypeRepr.of[A]
 
     val termA1: Option[Term] = 
-        Proof.program(tpeA)
+        Proof.program(tpeA)()
             .map(_(Map())(Symbol.spliceOwner))
             .map(Inlined(None, Nil, _))
 

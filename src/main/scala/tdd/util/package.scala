@@ -6,4 +6,4 @@ package object util:
 
     type Coalgebra[A, F[_]] = A => F[A]
 
-    type Compose[F[_], G[_]] = [t] =>> F[G[t]]
+    infix type Compose[F[_], G[_]] = [t] =>> F[G[t]]
