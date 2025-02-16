@@ -8,6 +8,8 @@ import org.scalactic.Equality
 import cats.Show
 import cats.syntax.show.*
 import tdd.util.*
+import Form.Syntax.{given, *}
+import Term.Syntax.{given, *}
 
 class ExamplesConjunction[F: Form: Show, T: Term.Aux[F]: Equality: Show] extends AnyFunSpec with should.Matchers: 
 
@@ -15,18 +17,16 @@ class ExamplesConjunction[F: Form: Show, T: Term.Aux[F]: Equality: Show] extends
         
         it("A & B -> B & A"): 
 
-            ("A".atom and "B".atom implies ("B".atom and "A".atom)) should BeProvenBy(
-                (0, "A".atom and "B".atom).lam(
-                    0.`var`._2 `and` 0.`var`._1
+            (("A" ^ "B") -> ("B" ^ "A")) should BeProvenBy(
+                (0, "A" ^ "B").lam(
+                    (0._2, 0._1)
                 ),
                 through = lj.Proof.DepthFirst
             )
             
         it("A & B -> A"): 
             
-            (("A".atom and "B".atom) implies "A".atom) should BeProvenBy(
-                (0, "A".atom and "B".atom).lam(
-                    0.`var`._1
-                ),
+            (("A" ^ "B") -> "A") should BeProvenBy(
+                (0, "A" ^ "B").lam(0._1),
                 through = lj.Proof.DepthFirst
             )

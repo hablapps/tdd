@@ -5,62 +5,70 @@ import org.scalatest._
 import funspec._
 import matchers._
 import org.scalactic.Equality
-import cats.Show
+import cats.Show, cats.syntax.show.*
 import tdd.api.{Form, Term}
+import Form.Syntax.{given, *}
+import Term.Syntax.{given, *}
 
 class ExamplesImplies[F: Form: Show, T: Term.Aux[F]: Equality: Show] extends AnyFunSpec with should.Matchers:
     
     describe("Implications"): 
         
         it("A -> A"): 
-            ("A".atom implies "A".atom) should BeProvenBy(
-                (0, "A".atom).lam(0.`var`)
+            ("A" -> "A") should BeProvenBy(
+                (0, "A".atom).lam(0)
             )
 
-        it("((A → (B → R) -> R) → (A -> R) -> R) -> (A -> R) -> R"):
+        it("((A -> (B -> R) -> R) -> (A -> R) -> R) -> (A -> R) -> R"):
 
-            ((("A".atom implies 
-                (("B".atom implies "R".atom) implies "R".atom)) implies
-                (("A".atom implies "R".atom) implies "R".atom)) implies 
-                (("A".atom implies "R".atom) implies "R".atom)) should BeProvenBy(
-                (0, ("A".atom implies (("B".atom implies "R".atom) implies "R".atom)) implies (("A".atom implies "R".atom) implies "R".atom)).lam(
-                    (1, "A".atom implies "R".atom).lam(
-                        0.`var`(
+            ((("A" -> (("B" -> "R") -> "R")) -> (("A" -> "R") -> "R")) -> (("A" -> "R") -> "R")) should BeProvenBy(
+                (0, ("A" -> (("B" -> "R") -> "R")) -> (("A" -> "R") -> "R")).lam(
+                    (1, "A" -> "R").lam(
+                        0(
                             (2, "A".atom).lam(
-                                (3, "B".atom implies "R".atom).lam(
-                                    1.`var`(2.`var`)
+                                (3, "B" -> "R").lam(
+                                    1(2)
                                 )
                             )
-                        )(1.`var`)
+                        )(1)
                     )
                 ))
 
-        it("A → B → A"):
+        it("A -> B -> A"):
 
-            ("A".atom implies ("B".atom implies "A".atom)) should BeProvenBy(
+            ("A" -> ("B" -> "A")) should BeProvenBy(
                 (0, "A".atom).lam(
                     (1, "B".atom).lam(
-                        0.`var`))
+                        0))
             )
 
-        it("(A → (B → C)) → ((A → B) → (A → C))"):
+        it("(A -> (B -> C)) -> ((A -> B) -> (A -> C))"):
 
-            (("A".atom implies ("B".atom implies "C".atom)) implies
-                (("A".atom implies "B".atom) implies
-                    ("A".atom implies "C".atom))) should BeProvenBy(
-                (0, "A".atom implies ("B".atom implies "C".atom)).lam(
-                    (1, "A".atom implies "B".atom).lam(
+            (("A" -> ("B" -> "C")) ->
+                (("A" -> "B") ->
+                    ("A" -> "C"))) should BeProvenBy(
+                (0, "A" -> ("B" -> "C")).lam(
+                    (1, "A" -> "B").lam(
                         (2, "A".atom).lam(
-                            0.`var`(2.`var`)(1.`var`(2.`var`))
+                            0(2)(1(2))
                         )
                     )
                 ))
 
-    it("Fail: A → B → C"):
+        it("Fail: A -> B -> C"):
+            ("A" -> ("B" -> "C")) should Fail[F, T]
 
-        ("A".atom implies ("B".atom implies "C".atom)) should Fail[F, T]
-
-    it("Fail: (A → B) → C"):
-
-        (("A".atom implies "B".atom) implies "C".atom) should Fail[F, T]
+        it("Fail: (A -> B) -> C"):
+            (("A" -> "B") -> "C") should Fail[F, T]
     
+    describe("Implications with several proofs for the same lambda-term"): 
+        
+        it("(A -> B) -> A -> C -> B"): 
+            (("A" -> "B") -> ("A" -> ("C" -> "B"))) should BeProvenBy(
+                (0, "A" -> "B").lam(
+                    (1, "A".atom).lam(
+                        (2, "C".atom).lam(0(1))
+                    )
+                )
+            )
+            

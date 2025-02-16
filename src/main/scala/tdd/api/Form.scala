@@ -50,3 +50,13 @@ object Form:
                 (_, _) => None,
                 (_, _) => None,
                 (a, b) => Some((a, b)))
+
+    object Syntax: 
+        given [F: Form]: Conversion[String, F] = _.atom
+        given [F: Form]: Conversion[F, F] = identity
+
+        extension [F: Form, A](f: A)(using Conversion[A, F])
+            def ->[B](f2: B)(using Conversion[B, F]): F = (f: F) implies f2
+            def ^[B](f2: B)(using Conversion[B, F]): F = (f: F) and f2
+            infix def v[B](f2: B)(using Conversion[B, F]): F = (f: F) or f2
+

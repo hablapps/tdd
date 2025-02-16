@@ -30,6 +30,12 @@ object Mu:
     def mapF[F[_]: Functor, G[_]](nat: F ~> G)(cf: Mu[F]): Mu[G] = 
         Mu(() => nat(cf.out().map(mapF(nat))))
 
+    def mapF_atDepth[F[_]: Functor, G[_]](nat: (Int, => F[Mu[G]]) => G[Mu[G]])(muF: Mu[F]): Mu[G] = 
+        def go(level: Int)(muF: => Mu[F]): Mu[G] = 
+            Mu(() => nat(level, muF.out().map(go(level+1))))
+
+        go(0)(muF)
+    
     // mapFilterF: Not exactly the analogue of mapFilter for Mu and F
 
     def mapFilterFRec[F[_]: FunctorFilter, H[_]](nat: F ~> Compose[Option, H])(rec: Mu[F] => Option[Mu[H]])(cf: Mu[F]): Option[Mu[H]] = 
@@ -64,8 +70,19 @@ object Mu:
 
     // Show instance
 
+    def truncate[F[_]: Functor](depth: Int)(mu: Mu[F]): Mu[Option Compose F] = 
+        mapF_atDepth[F, Option Compose F]((level, fMuG) => if level == depth then None else Some(fMuG))(mu)
+
     given [F[_]: Functor](using toTree: Algebra[F, Tree[Any]]): Show[Mu[F]] with 
+
+        val MAX = 6
+
+        given Functor[Option Compose F] = Functor[Option].compose[F]
+
+        given toTreeTruncated: Algebra[Option Compose F, Tree[Any]] = 
+            case None => Tree("...", Nil)
+            case Some(f) => toTree(f)
         def show(t: Mu[F]): String =
-            fold(toTree)(t).show
+            fold(toTreeTruncated)(truncate(MAX)(t)).show
 
     

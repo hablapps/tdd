@@ -13,7 +13,7 @@ extension [A](l: List[A])
 
 given Cofree_Show[F[_]: Functor, A: Show](using alg: Algebra[F, Tree[Any]]): Show[Cofree[F, A]] with 
 
-    val MAX_DEPTH = 10 
+    val MAX_DEPTH = 3 
 
     def toTreeUntil(depth: Int)(cf: Cofree[F, A]): Tree[Any] = 
         Tree(cf.head.show, 

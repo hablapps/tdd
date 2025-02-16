@@ -30,7 +30,7 @@ object Proof:
 
         go(1)
 
-    extension [F: Form: Show](form: F)
+    extension [F: Form](form: F)
         
         def allProofs(strategy: SearchStrategy = IterativeDeepening): LazyList[Proof[F]] = 
             val ss: SearchSpace[F] = Mu.unfold(SearchSpace.coalg)(api.Sequent.proof(form))
@@ -39,10 +39,14 @@ object Proof:
         def proof(strategy: SearchStrategy = IterativeDeepening): Option[Proof[F]] = 
             allProofs(strategy).headOption
             
-    extension [F: Form: Show, T: Term.Aux[F]](form: F)
+    extension [F: Form](proof: Proof[F])
+        def program[T: Term.Aux[F]]: Option[T] = 
+            Mu.fold(CalculusF.alg)(proof)
+
+    extension [F: Form, T: Term.Aux[F]](form: F)
         
         def allPrograms(strategy: SearchStrategy = IterativeDeepening): LazyList[T] = 
-            form.allProofs(strategy).flatMap(Mu.fold(CalculusF.alg))
+            form.allProofs(strategy).flatMap(_.program)
 
         def program(strategy: SearchStrategy = IterativeDeepening): Option[T] = 
             allPrograms(strategy).headOption
