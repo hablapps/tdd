@@ -24,6 +24,15 @@ object Form:
 
     def apply[F](using F: Form[F]): Form[F] = F
 
+    object False: 
+        def unapply[F: Form](f: F): Boolean = 
+            f.fold[Boolean](
+                true, 
+                _ => false, 
+                (_, _) => false,
+                (_, _) => false,
+                (_, _) => false)
+
     object Implies: 
         def unapply[F: Form](f: F): Option[(F, F)] = 
             f.fold[Option[(F, F)]](

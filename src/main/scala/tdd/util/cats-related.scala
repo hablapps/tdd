@@ -5,12 +5,6 @@ import cats.free.*
 import cats.*
 import cats.syntax.all.*
 
-extension [A](l: List[A])
-    def toNEL: Option[NonEmptyList[A]] = 
-        l match 
-            case Nil => None
-            case h :: t => Some(NonEmptyList.of(h, t*))
-
 given Cofree_Show[F[_]: Functor, A: Show](using alg: Algebra[F, Tree[Any]]): Show[Cofree[F, A]] with 
 
     val MAX_DEPTH = 3 

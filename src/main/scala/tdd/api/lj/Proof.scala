@@ -9,7 +9,7 @@ import tdd.util.*
 import SearchSpace.given 
 import SearchSpace.SearchF
 
-type Proof[F] = Mu[[t] =>> CalculusF[F, t]]
+type Proof[F] = Mu[[t] =>> LJ[F, t]]
 
 object Proof: 
 
@@ -32,21 +32,21 @@ object Proof:
 
     extension [F: Form](form: F)
         
-        def allProofs(strategy: SearchStrategy = IterativeDeepening): LazyList[Proof[F]] = 
-            val ss: SearchSpace[F] = Mu.unfold(SearchSpace.coalg)(api.Sequent.proof(form))
-            strategy[F](ss)
+        def allProofs(search: SearchStrategy = IterativeDeepening): LazyList[Proof[F]] = 
+            val ss: SearchSpace[F] = Mu.unfold(SearchSpace.coalg)(Sequent.proof(form))
+            search[F](ss)
         
-        def proof(strategy: SearchStrategy = IterativeDeepening): Option[Proof[F]] = 
-            allProofs(strategy).headOption
+        def proof(search: SearchStrategy = IterativeDeepening): Option[Proof[F]] = 
+            allProofs(search).headOption
             
     extension [F: Form](proof: Proof[F])
-        def program[T: Term.Aux[F]]: Option[T] = 
-            Mu.fold(CalculusF.alg)(proof)
+        def program[T: Term.Aux[F]]: T = 
+            Mu.fold(LJ.alg)(proof)
 
     extension [F: Form, T: Term.Aux[F]](form: F)
         
-        def allPrograms(strategy: SearchStrategy = IterativeDeepening): LazyList[T] = 
-            form.allProofs(strategy).flatMap(_.program)
+        def allPrograms(search: SearchStrategy = IterativeDeepening): LazyList[T] = 
+            form.allProofs(search).map(_.program)
 
-        def program(strategy: SearchStrategy = IterativeDeepening): Option[T] = 
-            allPrograms(strategy).headOption
+        def program(search: SearchStrategy = IterativeDeepening): Option[T] = 
+            allPrograms(search).headOption
