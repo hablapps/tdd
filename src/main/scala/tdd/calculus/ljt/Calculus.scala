@@ -8,6 +8,8 @@ import LJT.*
 import lj.LJ
 import Calculus.given
 import lambda.*
+import calculus.SearchSpace.apply                
+
 
 given Calculus_LJT: Calculus[LJT] with 
 
@@ -32,7 +34,6 @@ given Calculus_LJT: Calculus[LJT] with
         def foldRight[A, B](fa: LJT[F, A], lb: Eval[B])(f: (A, Eval[B]) => Eval[B]): Eval[B] = ??? 
 
     def coalg[F: Form]: Coalgebra[Sequent[F], SearchSpace.SearchF[F, LJT]] = seq =>
-        import calculus.SearchSpace.apply                
         val rotations: LazyList[Sequent[F]] = LazyList.from(seq.rotations)
 
         Rule[LJT.Axiom].coalg(rotations) ++ 
